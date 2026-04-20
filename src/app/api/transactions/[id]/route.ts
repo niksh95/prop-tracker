@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+export const runtime = 'nodejs'
+
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
@@ -15,6 +17,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
     return NextResponse.json({ message: 'Transaction deleted', transaction })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete transaction' }, { status: 500 })
+    console.error('DELETE /api/transactions/[id] failed:', error)
+    return NextResponse.json({ error: 'Failed to delete transaction', details: String(error) }, { status: 500 })
   }
 }

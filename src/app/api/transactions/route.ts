@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getUsdInrRate } from '@/lib/exchangeRate'
 
+export const runtime = 'nodejs'
+
 const BANKING_COST_PERCENT = 1.5 // 1.5%
 
 export async function GET() {
@@ -11,7 +13,8 @@ export async function GET() {
     })
     return NextResponse.json(transactions)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch transactions' }, { status: 500 })
+    console.error('GET /api/transactions failed:', error)
+    return NextResponse.json({ error: 'Failed to fetch transactions', details: String(error) }, { status: 500 })
   }
 }
 
@@ -52,6 +55,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(transaction, { status: 201 })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create transaction' }, { status: 500 })
+    console.error('POST /api/transactions failed:', error)
+    return NextResponse.json({ error: 'Failed to create transaction', details: String(error) }, { status: 500 })
   }
 }
