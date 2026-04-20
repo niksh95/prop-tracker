@@ -1,0 +1,13 @@
+-- CreateTable
+CREATE TABLE "Transaction" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "type" TEXT NOT NULL,
+    "amountUSD" REAL NOT NULL,
+    "amountINR" REAL NOT NULL,
+    "date" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "propFirm" TEXT NOT NULL,
+    "notes" TEXT,
+    "bankingCost" REAL NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);

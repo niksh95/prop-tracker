@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Prop Firm Payment & Payout Tracker
+
+A modern, clean Next.js app to track prop firm payments and payouts, manage funds, and prepare for Indian advance tax calculations. Features USD-INR conversion with banking costs and prop firm-wise P/L analysis.
+
+## Features
+
+- **Dashboard**: Overview of balance, payouts, payments, and quarterly tax estimate with recent transactions.
+- **Transaction Management**: Add and view detailed transaction history with USD-INR conversion and banking costs.
+- **Prop Firm P/L Analysis**: Performance breakdown for each trading firm with net profit calculations.
+- **Reports & Analytics**: Monthly summaries, detailed tax information, and annual profit/loss reports.
+- **Indian Tax Calculation**: Automatic quarterly advance tax estimates based on income tax slabs with 4% cess.
+- **Currency Conversion**: Live USD-INR rates (via exchangerate-api.com), auto-conversion with configurable banking costs.
+- **Settings**: Customize banking cost percentage and review tax calculation details.
+- **Modern UI**: Clean, responsive design with Tailwind CSS, professional dashboard, and intuitive navigation.
+
+## Routes & Pages
+
+- `/` - **Dashboard**: Main overview and recent transactions
+- `/add` - **Add Transaction**: Form to record payments/payouts with live INR preview
+- `/transactions` - **All Transactions**: Filterable table with search and detailed history
+- `/prop-firm-pl` - **Prop Firm P/L**: Firm-wise performance and profitability analysis
+- `/reports` - **Reports**: Monthly breakdown, tax estimates, and annual summaries
+- `/settings` - **Settings**: Configure banking costs and view tax information
+
+## Tech Stack
+
+- **Frontend**: Next.js 16 (App Router), TypeScript, React, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Database**: SQLite with Prisma ORM
+- **Currency API**: exchangerate-api.com (free tier: 1500 requests/month)
+- **Deployment**: Vercel (recommended)
 
 ## Getting Started
 
-First, run the development server:
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Set up database**:
+   ```bash
+   npx prisma migrate dev --name init
+   npx prisma generate
+   ```
+
+3. **Run development server**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Open in browser**:
+   Visit [http://localhost:3000](http://localhost:3000)
+
+## Usage
+
+1. **Add Transaction**: Click "+ Add" in navbar → enter USD amount, prop firm, and date → app fetches rate and calculates INR.
+2. **View Dashboard**: See balance, tax estimates, and recent activity at a glance.
+3. **Analyze by Firm**: Go to "Prop Firm P/L" to see which firms are most profitable.
+4. **Tax Prep**: Check "Reports" for quarterly tax estimates and annual summaries.
+5. **Settings**: Adjust banking cost percentage (default 1.5%) for accurate conversions.
+
+## Deployment
+
+### Deploy to Vercel (Recommended)
+
+1. Push your code to GitHub.
+2. Go to [Vercel](https://vercel.com) → "New Project" → select your repo.
+3. Vercel auto-detects Next.js; click "Deploy".
+4. (Optional) For production: set up Vercel Postgres instead of SQLite.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Or deploy via CLI:
+npm install -g vercel
+vercel
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Database (Production)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+For production, migrate from SQLite to **Vercel Postgres**:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Create a Vercel Postgres database.
+2. Update `prisma.config.ts` and `.env`:
+   ```
+   DATABASE_URL="postgresql://user:password@host/dbname"
+   ```
+3. Run:
+   ```bash
+   npx prisma migrate deploy
+   ```
 
-## Learn More
+## Notes
 
-To learn more about Next.js, take a look at the following resources:
+- **Tax Disclaimer**: Calculations are estimates based on standard Indian tax slabs. **Consult a Chartered Accountant** for accurate tax filing.
+- **Currency**: Assumes USD payments/payouts; rates update daily via free API.
+- **Privacy**: All data stored locally; no cloud sync or backups.
+- **Auth**: Personal use; no authentication (add if needed).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Uses SQLite for easy local development.
+- Auto-generates Prisma client on build.
+- Tailwind CSS for responsive, modern UI.
+- No external chart libraries (kept minimal for now; can add Recharts later).
 
-## Deploy on Vercel
+## Future Enhancements
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- PDF report export
+- Advanced charting (Recharts)
+- Multi-user support with auth
+- Cloud data sync
+- Email notifications for quarterly tax deadlines
+- Mobile app (React Native)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+Personal use. Feel free to modify for your needs.
