@@ -27,9 +27,11 @@ export async function POST(request: NextRequest) {
     const rate = await getUsdInrRate(date)
 
     // Calculate INR
+    // For payments (challenge fees): banking cost is added (you pay more)
+    // For payouts: banking cost is subtracted (you receive less)
     const converted = amountUSD * rate
     const bankingCost = converted * (bankingCostPercent / 100)
-    const amountINR = converted + bankingCost
+    const amountINR = type === 'payout' ? converted - bankingCost : converted + bankingCost
 
     const transactionData = {
       type,

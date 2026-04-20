@@ -42,7 +42,7 @@ export default function AddTransaction() {
         const data = await res.json()
         const converted = parseFloat(value) * data.rate
         const bankingCost = converted * (parseFloat(form.bankingCostPercent) / 100)
-        setPreviewINR(converted + bankingCost)
+        setPreviewINR(form.type === 'payout' ? converted - bankingCost : converted + bankingCost)
       } catch (error) {
         console.error('Failed to fetch rate')
       }
@@ -119,7 +119,7 @@ export default function AddTransaction() {
         const data = await res.json()
         const converted = parseFloat(value) * data.rate
         const bankingCost = converted * (parseFloat(form.bankingCostPercent) / 100)
-        setPreviewINR(converted + bankingCost)
+        setPreviewINR(batchEntry.type === 'payout' ? converted - bankingCost : converted + bankingCost)
       } catch (error) {
         console.error('Failed to fetch rate')
       }
