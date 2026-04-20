@@ -336,7 +336,7 @@ export default function AddTransaction() {
         {/* Batch Entry Form */}
         {batchMode && (
           <div className="bg-white rounded-xl shadow-md p-8">
-            <form onSubmit={handleBatchSubmit} className="space-y-6">
+            <form onSubmit={handleBatchSubmit} className="space-y-6" noValidate>
               <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
                 <p className="text-sm text-blue-900 font-medium">💡 Enter details for multiple identical transactions. All will use the same date.</p>
               </div>
