@@ -20,18 +20,25 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { type, propFirmType = 'futures', amountUSD, date, propFirm, notes, bankingCostPercent = BANKING_COST_PERCENT, count = 1 } = await request.json()
+    const { type, propFirmType = 'futures', amountUSD, amountINRDirect, date, propFirm, notes, bankingCostPercent = BANKING_COST_PERCENT, count = 1 } = await request.json()
     const numberOfTransactions = Number(count) > 1 ? Math.floor(Number(count)) : 1
 
-    // Fetch USD-INR rate for the transaction date
-    const rate = await getUsdInrRate(date)
+    let amountINR: number
+    let bankingCost: number
 
-    // Calculate INR
-    // For payments (challenge fees): banking cost is added (you pay more)
-    // For payouts: banking cost is subtracted (you receive less)
-    const converted = amountUSD * rate
-    const bankingCost = converted * (bankingCostPercent / 100)
-    const amountINR = type === 'payout' ? converted - bankingCost : converted + bankingCost
+    if (amountINRDirect && Number(amountINRDirect) > 0) {
+      // User provided exact INR — skip all USD/rate calculations
+      amountINR = Number(amountINRDirect)
+      bankingCost = 0
+    } else {
+      // Calculate INR from USD using exchange rate
+      // For payments (challenge fees): banking cost is added (you pay more)
+      // For payouts: banking cost is subtracted (you receive less)
+      const rate = await getUsdInrRate(date)
+      const converted = amountUSD * rate
+      bankingCost = converted * (bankingCostPercent / 100)
+      amountINR = type === 'payout' ? converted - bankingCost : converted + bankingCost
+    }
 
     const transactionData = {
       type,

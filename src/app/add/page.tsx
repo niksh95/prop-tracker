@@ -17,6 +17,7 @@ export default function AddTransaction() {
     type: 'payout',
     propFirmType: 'futures',
     amountUSD: '',
+    amountINRDirect: '',
     date: new Date().toISOString().split('T')[0],
     propFirm: '',
     notes: '',
@@ -24,6 +25,7 @@ export default function AddTransaction() {
   })
   const [batchEntry, setBatchEntry] = useState({
     amountUSD: '',
+    amountINRDirect: '',
     propFirm: '',
     propFirmType: 'futures',
     type: 'payout',
@@ -35,7 +37,8 @@ export default function AddTransaction() {
 
   const handleAmountChange = async (value: string) => {
     setForm({ ...form, amountUSD: value })
-    
+    // Skip preview if user has entered a direct INR value
+    if (form.amountINRDirect) return
     if (value && !isNaN(parseFloat(value))) {
       try {
         const res = await fetch(`/api/rate?date=${form.date}`)
@@ -46,6 +49,8 @@ export default function AddTransaction() {
       } catch (error) {
         console.error('Failed to fetch rate')
       }
+    } else {
+      setPreviewINR(0)
     }
   }
 
@@ -58,7 +63,8 @@ export default function AddTransaction() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          amountUSD: parseFloat(form.amountUSD),
+          amountUSD: parseFloat(form.amountUSD) || 0,
+          amountINRDirect: form.amountINRDirect ? parseFloat(form.amountINRDirect) : undefined,
           bankingCostPercent: parseFloat(form.bankingCostPercent)
         })
       })
@@ -90,7 +96,8 @@ export default function AddTransaction() {
         body: JSON.stringify({
           ...batchEntry,
           date: form.date,
-          amountUSD: parseFloat(batchEntry.amountUSD),
+          amountUSD: parseFloat(batchEntry.amountUSD) || 0,
+          amountINRDirect: batchEntry.amountINRDirect ? parseFloat(batchEntry.amountINRDirect) : undefined,
           type: batchEntry.type,
           propFirmType: batchEntry.propFirmType,
           bankingCostPercent: parseFloat(form.bankingCostPercent),
@@ -112,7 +119,7 @@ export default function AddTransaction() {
 
   const handleBatchAmountChange = async (value: string) => {
     setBatchEntry({ ...batchEntry, amountUSD: value })
-    
+    if (batchEntry.amountINRDirect) return
     if (value && !isNaN(parseFloat(value))) {
       try {
         const res = await fetch(`/api/rate?date=${form.date}`)
@@ -123,6 +130,8 @@ export default function AddTransaction() {
       } catch (error) {
         console.error('Failed to fetch rate')
       }
+    } else {
+      setPreviewINR(0)
     }
   }
 
@@ -224,15 +233,39 @@ export default function AddTransaction() {
                     step="0.01"
                     value={form.amountUSD}
                     onChange={(e) => handleAmountChange(e.target.value)}
-                    className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-lg"
-                    required
+                    className={`w-full pl-8 pr-4 py-3 border-2 rounded-lg focus:outline-none focus:border-blue-500 text-lg ${form.amountINRDirect ? 'border-gray-200 bg-gray-50 text-gray-400' : 'border-gray-300'}`}
+                    required={!form.amountINRDirect}
                     placeholder="0.00"
+                    disabled={!!form.amountINRDirect}
                   />
                 </div>
-                {previewINR > 0 && (
+                {previewINR > 0 && !form.amountINRDirect && (
                   <p className="mt-2 text-sm text-blue-700 font-medium">
                     ≈ ₹{previewINR.toLocaleString('en-IN', { maximumFractionDigits: 2 })} (with banking cost)
                   </p>
+                )}
+              </div>
+
+              {/* Direct INR Amount */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-1">Direct INR Amount <span className="text-gray-500 font-normal">(optional — overrides USD calculation)</span></label>
+                <p className="text-xs text-gray-500 mb-3">Fill this if you already know the exact INR received/paid. USD field will be ignored.</p>
+                <div className="relative">
+                  <span className="absolute left-4 top-3 text-gray-600 text-lg">₹</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={form.amountINRDirect}
+                    onChange={(e) => {
+                      setForm({ ...form, amountINRDirect: e.target.value })
+                      if (e.target.value) setPreviewINR(0)
+                    }}
+                    className="w-full pl-8 pr-4 py-3 border-2 border-green-300 rounded-lg focus:outline-none focus:border-green-500 text-lg bg-green-50"
+                    placeholder="Leave empty to auto-calculate from USD"
+                  />
+                </div>
+                {form.amountINRDirect && (
+                  <p className="mt-2 text-sm text-green-700 font-medium">✓ Using direct INR value — USD & banking cost fields ignored</p>
                 )}
               </div>
 
@@ -392,15 +425,39 @@ export default function AddTransaction() {
                     step="0.01"
                     value={batchEntry.amountUSD}
                     onChange={(e) => handleBatchAmountChange(e.target.value)}
-                    className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-lg"
-                    required
+                    className={`w-full pl-8 pr-4 py-3 border-2 rounded-lg focus:outline-none focus:border-blue-500 text-lg ${batchEntry.amountINRDirect ? 'border-gray-200 bg-gray-50 text-gray-400' : 'border-gray-300'}`}
+                    required={!batchEntry.amountINRDirect}
                     placeholder="0.00"
+                    disabled={!!batchEntry.amountINRDirect}
                   />
                 </div>
-                {previewINR > 0 && (
+                {previewINR > 0 && !batchEntry.amountINRDirect && (
                   <p className="mt-2 text-sm text-blue-700 font-medium">
                     ≈ ₹{previewINR.toLocaleString('en-IN', { maximumFractionDigits: 2 })} (with banking cost)
                   </p>
+                )}
+              </div>
+
+              {/* Direct INR Amount */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-1">Direct INR Amount <span className="text-gray-500 font-normal">(optional — overrides USD calculation)</span></label>
+                <p className="text-xs text-gray-500 mb-3">Fill this if you already know the exact INR received/paid. USD field will be ignored.</p>
+                <div className="relative">
+                  <span className="absolute left-4 top-3 text-gray-600 text-lg">₹</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={batchEntry.amountINRDirect}
+                    onChange={(e) => {
+                      setBatchEntry({ ...batchEntry, amountINRDirect: e.target.value })
+                      if (e.target.value) setPreviewINR(0)
+                    }}
+                    className="w-full pl-8 pr-4 py-3 border-2 border-green-300 rounded-lg focus:outline-none focus:border-green-500 text-lg bg-green-50"
+                    placeholder="Leave empty to auto-calculate from USD"
+                  />
+                </div>
+                {batchEntry.amountINRDirect && (
+                  <p className="mt-2 text-sm text-green-700 font-medium">✓ Using direct INR value — USD & banking cost fields ignored</p>
                 )}
               </div>
 
