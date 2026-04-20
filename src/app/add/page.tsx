@@ -84,8 +84,8 @@ export default function AddTransaction() {
     e.preventDefault()
     setLoading(true)
     try {
-      if (!batchEntry.amountUSD || !batchEntry.propFirm) {
-        alert('Please fill amount and prop firm')
+      if ((!batchEntry.amountUSD && !batchEntry.amountINRDirect) || !batchEntry.propFirm) {
+        alert('Please fill amount (USD or INR) and prop firm')
         setLoading(false)
         return
       }
